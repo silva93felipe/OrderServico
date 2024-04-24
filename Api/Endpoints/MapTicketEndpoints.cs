@@ -32,7 +32,7 @@ namespace OrdemServico.Endpoints
                 return Results.Created();
             });
 
-            app.MapDelete("/", async (int id, ITicketService _ticketService)=> {
+            app.MapDelete("/{id:int}", async (int id, ITicketService _ticketService)=> {
                 await _ticketService.Delete(id);
                 return Results.NoContent();
             });

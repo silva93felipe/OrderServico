@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "dotnet",
+            "task": "watch OrdemServico",
+            "file": "/home/felipe/Documentos/workspace/projetos/csharp/OrderService/Api/OrdemServico.csproj",
+            "problemMatcher": [],
+            "label": "dotnet: watch OrdemServico"
+        }
+    ]
+}

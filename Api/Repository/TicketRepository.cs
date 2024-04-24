@@ -64,7 +64,7 @@ namespace OrdemServico.Repository
         {
             await using var connection = new SqliteConnection(_configuration.GetConnectionString("Dev"));
             
-            return await connection.QueryFirstOrDefaultAsync<Ticket>("SELECT * FROM ticket WHERE id = @id AND Status = 1 AND Ativo;", new { id });            
+            return await connection.QueryFirstOrDefaultAsync<Ticket>("SELECT * FROM ticket WHERE id = @id;", new { id });            
         }
     }
 }
