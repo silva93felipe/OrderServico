@@ -10,5 +10,6 @@ namespace OrdemServico.Interfaces
         public Task Delete(Ticket id);
         public Task Create(Ticket ticket);
         public Task Encerrar(int id);
+        public Task Encerrar(Ticket id);
     }
 }

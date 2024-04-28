@@ -25,11 +25,10 @@ namespace OrdemServico.Service
         {
             var ordersCache = await _distributedCache.GetStringAsync(ORDERS_KEY);   
             if(string.IsNullOrEmpty(ordersCache) == false){
-                IEnumerable<Ticket> tickets =  JsonConvert.DeserializeObject<List<Ticket>>(ordersCache);
-                return _mapper.Map<IEnumerable<TicketResponse>>(tickets);
+                return  JsonConvert.DeserializeObject<IEnumerable<TicketResponse>>(ordersCache);
             }else{
                 IEnumerable<Ticket> tickets = await _ticketRepository.GetAll();
-                  await _distributedCache.SetStringAsync($"{ORDERS_KEY}", JsonConvert.SerializeObject(tickets));
+                await _distributedCache.SetStringAsync($"{ORDERS_KEY}", JsonConvert.SerializeObject(tickets));
                 return _mapper.Map<IEnumerable<TicketResponse>>(tickets);
             }
         }
@@ -54,12 +53,11 @@ namespace OrdemServico.Service
             var ordersCache = await _distributedCache.GetStringAsync($"{ORDERS_KEY}_{id}");
             Ticket? ticket = null;
             if(string.IsNullOrEmpty(ordersCache) == false){
-                ticket =  JsonConvert.DeserializeObject<Ticket>(ordersCache);
-                return _mapper.Map<TicketResponse>(ticket);
+                return JsonConvert.DeserializeObject<TicketResponse>(ordersCache);
             }
             ticket = await _ticketRepository.GetById(id);
             if(ticket != null){
-                await _distributedCache.SetStringAsync($"{ORDERS_KEY}{id}", JsonConvert.SerializeObject(ticket));
+                await _distributedCache.SetStringAsync($"{ORDERS_KEY}_{id}", JsonConvert.SerializeObject(ticket));
                 return _mapper.Map<TicketResponse>(ticket);
             }
 

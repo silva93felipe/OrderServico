@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(ConfigurationMapping));
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+new DatabaseInitializer(builder.Configuration.GetConnectionString("Dev"));
 builder.Services.AddStackExchangeRedisCache(options => {
     //options.InstanceName = "cache_orders";
     options.Configuration = "localhost:6379";

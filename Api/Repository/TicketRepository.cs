@@ -62,12 +62,21 @@ namespace OrdemServico.Repository
                                                 WHERE id = @Id;", 
                                                 new { ticket.Status, ticket.DataFechamento, ticket.UpdateAt, ticket.Id });
             }
-        }   
+        }
+
+        public async Task Encerrar(Ticket ticket)
+        {        
+            await using var connection = new SqliteConnection(_configuration.GetConnectionString("Dev"));
+            await connection.ExecuteAsync(@"UPDATE ticket SET Status = @Status, 
+                                            DataFechamento = @DataFechamento, 
+                                            UpdateAt = @UpdateAt
+                                            WHERE id = @Id;", 
+                                            new { ticket.Status, ticket.DataFechamento, ticket.UpdateAt, ticket.Id });
+        }  
 
         public async Task<IEnumerable<Ticket>> GetAll()
         {
             await using var connection = new SqliteConnection(_configuration.GetConnectionString("Dev"));
-            
             return await connection.QueryAsync<Ticket>("SELECT * FROM ticket WHERE Ativo AND Status = 1;");
         }
 
