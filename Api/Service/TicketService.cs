@@ -5,7 +5,6 @@ using OrdemServico.Model;
 using OrdemServico.ViewModel;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using System.Collections;
 
 
 namespace OrdemServico.Service
@@ -24,23 +23,20 @@ namespace OrdemServico.Service
         }
         public async Task<IEnumerable<TicketResponse>> GetAll()
         {
-            var ordersCache = await _distributedCache.GetStringAsync(ORDERS_KEY);
-            
+            var ordersCache = await _distributedCache.GetStringAsync(ORDERS_KEY);   
             if(string.IsNullOrEmpty(ordersCache) == false){
-            
-                // TODO
-               IEnumerable<Ticket> tickets =  JsonConvert.DeserializeObject<List<Ticket>>(ordersCache);
+                IEnumerable<Ticket> tickets =  JsonConvert.DeserializeObject<List<Ticket>>(ordersCache);
                 return _mapper.Map<IEnumerable<TicketResponse>>(tickets);
             }else{
                 IEnumerable<Ticket> tickets = await _ticketRepository.GetAll();
+                  await _distributedCache.SetStringAsync($"{ORDERS_KEY}", JsonConvert.SerializeObject(tickets));
                 return _mapper.Map<IEnumerable<TicketResponse>>(tickets);
             }
         }
         public async Task Create(TicketRequet ticket)
         {
-            Ticket newTicket = new Ticket(ticket.EquipamentoId, ticket.Observacao, ticket.SetorId);
+            Ticket newTicket = new(ticket.EquipamentoId, ticket.Observacao, ticket.SetorId);
             await _ticketRepository.Create(newTicket);
-            await _distributedCache.SetStringAsync(ORDERS_KEY, JsonConvert.SerializeObject(newTicket));
         }
 
         public async Task Delete(int id)
@@ -54,11 +50,18 @@ namespace OrdemServico.Service
         }
 
         public async Task<TicketResponse?> GetById(int id)
-        {
-            Ticket ticket = await _ticketRepository.GetById(id);
-            if(ticket != null)
+        {  
+            var ordersCache = await _distributedCache.GetStringAsync($"{ORDERS_KEY}_{id}");
+            Ticket? ticket = null;
+            if(string.IsNullOrEmpty(ordersCache) == false){
+                ticket =  JsonConvert.DeserializeObject<Ticket>(ordersCache);
                 return _mapper.Map<TicketResponse>(ticket);
-                //return new TicketResponse(ticket.Id, ticket.Ativo, ticket.EquipamentoId, ticket.DataAbertura, ticket.Observacao, TICKET_STATUS_ATIVO, ticket.SetorId);
+            }
+            ticket = await _ticketRepository.GetById(id);
+            if(ticket != null){
+                await _distributedCache.SetStringAsync($"{ORDERS_KEY}{id}", JsonConvert.SerializeObject(ticket));
+                return _mapper.Map<TicketResponse>(ticket);
+            }
 
             return null;
         }

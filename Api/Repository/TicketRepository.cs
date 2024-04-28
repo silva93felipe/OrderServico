@@ -20,12 +20,23 @@ namespace OrdemServico.Repository
             await connection.ExecuteAsync(
                         @"INSERT INTO ticket (DataAbertura, DataFechamento, EquipamentoId, Observacao, Ativo, UpdateAt, Status, SetorId) 
                         VALUES(@DataAbertura, @DataFechamento, @EquipamentoId, @Observacao, @Ativo, @UpdateAt, @Status, @SetorId);", 
-                        new { ticket.DataAbertura, ticket.DataFechamento, ticket.EquipamentoId, 
+                        new {ticket.Id, ticket.DataAbertura, ticket.DataFechamento, ticket.EquipamentoId, 
                             ticket.Observacao, ticket.Ativo, ticket.UpdateAt, ticket.Status, ticket.SetorId 
                         }
             );
         }
 
+        public async Task Delete(Ticket ticket)
+        {
+            await using var connection = new SqliteConnection(_configuration.GetConnectionString("Dev"));
+            await connection.ExecuteAsync(@"UPDATE ticket 
+                                            SET Status = @Status, 
+                                                UpdateAt = @UpdateAt, 
+                                                Ativo = @Ativo
+                                            WHERE Id = @Id;", 
+                                            new { ticket.Status, ticket.UpdateAt, ticket.Ativo, ticket.Id });
+        }            
+        
         public async Task Delete(int id)
         {
             var ticket = await GetById(id);
